@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #4b7326;
+  --primary-hover: #3d5e1e;
+  --primary-light: #7da847;
+  --primary-subtle: rgba(75, 115, 38, 0.12);
+
+  --cream: #FAF6ED;
+  --cream-dark: #F2ECE0;
+  --cream-card: #FFFFFF;
+
+  --accent-salsa: #D94826;
+  --accent-gold: #E6A817;
+  --wood: #8D5B36;
+
+  --text-main: #1D2615;
+  --text-muted: #57634E;
+  --text-inverted: #FAF6ED;
+
+  --border: rgba(75, 115, 38, 0.18);
+  --border-subtle: rgba(0, 0, 0, 0.08);
+
+  --bg-gradient: radial-gradient(circle at 65% 35%, #FFFDF7 0%, #F5EEDC 60%, #E9E1C8 100%);
+  --bg-page: #FAF6ED;
+  --nav-bg: rgba(250, 246, 237, 0.88);
+}
+
+[data-theme="dark"] {
+  --primary: #86B84A;
+  --primary-hover: #9CD15B;
+  --primary-light: #AEE36F;
+  --primary-subtle: rgba(134, 184, 74, 0.15);
+
+  --cream: #121810;
+  --cream-dark: #0D120B;
+  --cream-card: #182215;
+
+  --text-main: #F3F7EC;
+  --text-muted: #9EAF94;
+  --text-inverted: #121810;
+
+  --border: rgba(134, 184, 74, 0.22);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+
+  --bg-gradient: radial-gradient(circle at 65% 35%, #182216 0%, #11170F 65%, #0B0F0A 100%);
+  --bg-page: #10160E;
+  --nav-bg: rgba(16, 22, 14, 0.9);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  transition: background-color 0.4s ease, color 0.4s ease;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cream-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 9999px;
+}
+
+@keyframes floatAvo {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(4deg); }
+}
+
+.animate-float-avo {
+  animation: floatAvo 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+}

@@ -1,0 +1,2790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Fruitopia | Fresh & Wholesome Avocado Street Kart • Ashok Nagar, Chennai</title>
+  
+  <meta name="description" content="Fruitopia - Chennai's healthy street food kart in Ashok Nagar. Fresh Hass avocado smoothies, artisan guacamole toasts, nourishing broccoli soup, and cooling green buttermilk.">
+  <meta name="theme-color" content="#5b8233">
+
+  <!-- Google Fonts: Fraunces (Headings) & Inter (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Three.js & OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Optional GLTFLoader (Ready for swapping in custom .glb models) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <!-- GSAP for camera motions & UI transitions -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       CSS VARIABLES & THEMES (Light & Dark Mode)
+       ========================================================================== */
+    :root {
+      /* Avocado Green & Cream Palette */
+      --primary: #4b7326;
+      --primary-hover: #3d5e1e;
+      --primary-light: #7da847;
+      --primary-subtle: rgba(75, 115, 38, 0.12);
+      
+      --cream: #FAF6ED;
+      --cream-dark: #F2ECE0;
+      --cream-card: #FFFFFF;
+      
+      --accent-salsa: #D94826;
+      --accent-gold: #E6A817;
+      --wood: #8D5B36;
+      
+      --text-main: #1D2615;
+      --text-muted: #57634E;
+      --text-inverted: #FAF6ED;
+      
+      --border: rgba(75, 115, 38, 0.18);
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      --shadow-sm: 0 4px 12px rgba(35, 50, 15, 0.06);
+      --shadow-md: 0 10px 28px rgba(35, 50, 15, 0.1);
+      --shadow-lg: 0 20px 45px rgba(35, 50, 15, 0.16);
+
+      --bg-gradient: radial-gradient(circle at 65% 35%, #FFFDF7 0%, #F5EEDC 60%, #E9E1C8 100%);
+      --bg-page: #FAF6ED;
+      --nav-bg: rgba(250, 246, 237, 0.88);
+      --canvas-bg-top: #FAF7EE;
+      --canvas-bg-bottom: #DFE8D0;
+
+      --radius-sm: 10px;
+      --radius-md: 18px;
+      --radius-lg: 28px;
+      --radius-full: 9999px;
+
+      --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    [data-theme="dark"] {
+      --primary: #86B84A;
+      --primary-hover: #9CD15B;
+      --primary-light: #AEE36F;
+      --primary-subtle: rgba(134, 184, 74, 0.15);
+      
+      --cream: #121810;
+      --cream-dark: #0D120B;
+      --cream-card: #182215;
+      
+      --text-main: #F3F7EC;
+      --text-muted: #9EAF94;
+      --text-inverted: #121810;
+      
+      --border: rgba(134, 184, 74, 0.22);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+      --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.65);
+
+      --bg-gradient: radial-gradient(circle at 65% 35%, #182216 0%, #11170F 65%, #0B0F0A 100%);
+      --bg-page: #10160E;
+      --nav-bg: rgba(16, 22, 14, 0.9);
+      --canvas-bg-top: #1A2517;
+      --canvas-bg-bottom: #0E140C;
+    }
+
+    /* ==========================================================================
+       RESET & BASE STYLES
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Fraunces', Georgia, serif;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      transition: var(--transition-smooth);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 9px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--cream-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-light);
+      border-radius: var(--radius-full);
+    }
+
+    /* ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 1.5rem;
+      background: var(--nav-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: var(--transition-smooth);
+    }
+
+    .nav-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .brand-logo .avocado-icon {
+      font-size: 1.7rem;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+      animation: floatAvo 3s ease-in-out infinite;
+    }
+
+    @keyframes floatAvo {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(4deg); }
+    }
+
+    .nav-badge {
+      font-size: 0.75rem;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.8rem;
+      list-style: none;
+    }
+
+    .nav-link {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      position: relative;
+      padding: 0.2rem 0;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary);
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .theme-toggle-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--cream-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      font-size: 1.2rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .theme-toggle-btn:hover {
+      transform: scale(1.08);
+      border-color: var(--primary);
+    }
+
+    .btn-cta-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: #FFF !important;
+      padding: 0.65rem 1.25rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 14px rgba(75, 115, 38, 0.35);
+    }
+
+    .btn-cta-nav:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(75, 115, 38, 0.45);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: var(--cream-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      font-size: 1.4rem;
+    }
+
+    /* ==========================================================================
+       HERO SECTION WITH 3D CANVAS
+       ========================================================================== */
+    .hero-section {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 6.5rem 1.5rem 3rem;
+      overflow: hidden;
+      background: var(--bg-gradient);
+    }
+
+    .hero-container {
+      max-width: 1350px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.15fr 1.35fr;
+      align-items: center;
+      gap: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-content {
+      padding-right: 1.5rem;
+      z-index: 5;
+    }
+
+    .hero-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      background: var(--cream-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 1.3rem;
+      animation: fadeInDown 0.8s ease;
+    }
+
+    .hero-badge-pill .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34D399;
+      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+      animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+      70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+    }
+
+    .hero-title {
+      font-size: clamp(2.6rem, 5vw, 4.3rem);
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 1.2rem;
+      line-height: 1.08;
+    }
+
+    .hero-title span.highlight {
+      color: var(--primary);
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-title span.highlight::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 6px;
+      width: 100%;
+      height: 12px;
+      background: rgba(125, 168, 71, 0.28);
+      z-index: -1;
+      border-radius: 6px;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      max-width: 540px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.2rem;
+    }
+
+    .btn-primary-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--primary);
+      color: #FFF !important;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 0.95rem 1.9rem;
+      border-radius: var(--radius-full);
+      box-shadow: 0 8px 24px rgba(75, 115, 38, 0.35);
+      transition: var(--transition-smooth);
+    }
+
+    .btn-primary-hero:hover {
+      background: var(--primary-hover);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(75, 115, 38, 0.45);
+    }
+
+    .btn-secondary-hero {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--cream-card);
+      color: var(--text-main);
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 0.95rem 1.7rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-smooth);
+    }
+
+    .btn-secondary-hero:hover {
+      background: var(--cream-dark);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .hero-perks {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding-top: 1.4rem;
+      border-top: 1px dashed var(--border);
+      max-width: 520px;
+    }
+
+    .perk-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .perk-item .perk-num {
+      font-family: 'Fraunces', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .perk-item .perk-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    /* 3D Canvas Container */
+    .hero-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #webgl-canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+      border-radius: var(--radius-lg);
+      touch-action: none;
+    }
+
+    #webgl-canvas-container:active {
+      cursor: grabbing;
+    }
+
+    /* 3D UI Overlays */
+    .canvas-hud {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--nav-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      z-index: 10;
+      pointer-events: auto;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .canvas-hud .hud-icon {
+      font-size: 1.1rem;
+      color: var(--primary);
+      animation: wiggle 2s ease infinite;
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0); }
+      25% { transform: rotate(-8deg); }
+      75% { transform: rotate(8deg); }
+    }
+
+    .hud-reset-btn {
+      padding: 0.2rem 0.6rem;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    .hud-reset-btn:hover {
+      background: var(--primary);
+      color: #FFF;
+    }
+
+    /* 3D Hotspot Card Preview (Flyout) */
+    .hotspot-modal {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      width: 320px;
+      max-width: calc(100% - 50px);
+      background: var(--cream-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.4rem;
+      box-shadow: var(--shadow-lg);
+      z-index: 25;
+      display: none;
+      transform: translateY(-10px) scale(0.95);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hotspot-modal.active {
+      display: block;
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .hotspot-modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--cream-dark);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .hotspot-modal-close:hover {
+      background: var(--accent-salsa);
+      color: #FFF;
+    }
+
+    .hotspot-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      background: var(--primary-subtle);
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      display: inline-block;
+      margin-bottom: 0.4rem;
+    }
+
+    .hotspot-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.3rem;
+    }
+
+    .hotspot-price {
+      font-family: 'Fraunces', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.6rem;
+    }
+
+    .hotspot-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.1rem;
+    }
+
+    .hotspot-action-btn {
+      width: 100%;
+      background: var(--primary);
+      color: #FFF;
+      padding: 0.65rem 1rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .hotspot-action-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Fallback Banner for Low-End Devices / No WebGL */
+    .fallback-hero-card {
+      display: none;
+      width: 100%;
+      height: 100%;
+      background: var(--cream-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      text-align: center;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    .fallback-hero-card.show {
+      display: flex;
+    }
+
+    /* ==========================================================================
+       SECTION HEADERS (Common)
+       ========================================================================== */
+    .section-wrap {
+      padding: 6rem 1.5rem;
+      max-width: 1300px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .section-header-block {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 3.5rem;
+    }
+
+    .section-eyebrow {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--primary);
+      background: var(--primary-subtle);
+      padding: 0.35rem 0.9rem;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .section-heading {
+      font-size: clamp(2rem, 3.8vw, 3rem);
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 1rem;
+    }
+
+    .section-subtext {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       MENU SECTION
+       ========================================================================== */
+    .menu-section {
+      background: var(--cream);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .menu-tabs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+
+    .menu-tab-btn {
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--radius-full);
+      background: var(--cream-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: var(--transition-smooth);
+    }
+
+    .menu-tab-btn:hover {
+      border-color: var(--primary);
+      color: var(--text-main);
+      transform: translateY(-2px);
+    }
+
+    .menu-tab-btn.active {
+      background: var(--primary);
+      color: #FFF;
+      border-color: var(--primary);
+      box-shadow: 0 6px 18px rgba(75, 115, 38, 0.3);
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.8rem;
+    }
+
+    .menu-card {
+      background: var(--cream-card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      padding: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-smooth);
+    }
+
+    .menu-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-light);
+    }
+
+    .menu-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .menu-card:hover::before {
+      opacity: 1;
+    }
+
+    .menu-card-top {
+      margin-bottom: 1.2rem;
+    }
+
+    .menu-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .card-category-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+      background: var(--primary-subtle);
+      padding: 0.25rem 0.7rem;
+      border-radius: var(--radius-full);
+    }
+
+    .card-customizable-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent-salsa);
+      background: rgba(217, 72, 38, 0.1);
+      border: 1px solid rgba(217, 72, 38, 0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .menu-card-title-price {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.8rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .menu-item-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .menu-item-price {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .menu-item-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .menu-card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 1.2rem;
+    }
+
+    .btn-focus-3d {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--radius-full);
+      background: var(--primary-subtle);
+    }
+
+    .btn-focus-3d:hover {
+      background: var(--primary);
+      color: #FFF;
+    }
+
+    .btn-order-wa-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #25D366;
+      color: #FFF;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.55rem 1.1rem;
+      border-radius: var(--radius-full);
+      box-shadow: 0 3px 10px rgba(37, 211, 102, 0.3);
+    }
+
+    .btn-order-wa-item:hover {
+      background: #1EBE5D;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 14px rgba(37, 211, 102, 0.4);
+    }
+
+    /* ==========================================================================
+       ABOUT US SECTION
+       ========================================================================== */
+    .about-section {
+      background: var(--bg-page);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 3.5rem;
+    }
+
+    .about-visual {
+      position: relative;
+    }
+
+    .about-card-mockup {
+      background: linear-gradient(145deg, var(--primary), var(--primary-hover));
+      color: #FFF;
+      padding: 3rem 2.5rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-card-mockup::after {
+      content: '🥑';
+      position: absolute;
+      right: -25px;
+      bottom: -35px;
+      font-size: 12rem;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    .about-quote {
+      font-family: 'Fraunces', serif;
+      font-size: 1.7rem;
+      font-style: italic;
+      line-height: 1.35;
+      margin-bottom: 1.5rem;
+    }
+
+    .about-author {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .about-floating-stat {
+      position: absolute;
+      bottom: -20px;
+      left: 30px;
+      background: var(--cream-card);
+      color: var(--text-main);
+      padding: 1rem 1.6rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .about-floating-stat .stat-num {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .about-floating-stat .stat-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    .about-content h3 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 1.2rem;
+    }
+
+    .about-content p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 1.4rem;
+      line-height: 1.7;
+    }
+
+    .about-feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      margin-top: 1.8rem;
+    }
+
+    .about-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      font-size: 0.98rem;
+      color: var(--text-main);
+    }
+
+    .about-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary-subtle);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-weight: bold;
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+
+    /* ==========================================================================
+       LOCATION & CONTACT SECTION
+       ========================================================================== */
+    .contact-section {
+      background: var(--cream);
+      border-top: 1px solid var(--border-subtle);
+      position: relative;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 2.5rem;
+      align-items: stretch;
+    }
+
+    .contact-info-card {
+      background: var(--cream-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .contact-detail-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .contact-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.2rem;
+    }
+
+    .contact-icon-bubble {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--primary-subtle);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .contact-text-meta h4 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+    }
+
+    .contact-text-meta p, .contact-text-meta a {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .contact-text-meta a:hover {
+      color: var(--primary);
+    }
+
+    .phone-highlight {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem !important;
+      color: var(--primary) !important;
+    }
+
+    .contact-action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .btn-call-direct {
+      flex: 1;
+      min-width: 170px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background: var(--primary);
+      color: #FFF !important;
+      padding: 0.85rem 1.4rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(75, 115, 38, 0.35);
+    }
+
+    .btn-call-direct:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-wa-direct {
+      flex: 1;
+      min-width: 170px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background: #25D366;
+      color: #FFF !important;
+      padding: 0.85rem 1.4rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+    }
+
+    .btn-wa-direct:hover {
+      background: #1EBE5D;
+      transform: translateY(-2px);
+    }
+
+    /* Map Card */
+    .map-embed-wrapper {
+      background: var(--cream-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      min-height: 440px;
+      position: relative;
+    }
+
+    .map-embed-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 440px;
+      border: 0;
+      filter: saturate(1.1);
+    }
+
+    /* ==========================================================================
+       FLOATING QUICK-ORDER BAR (Mobile / Desktop)
+       ========================================================================== */
+    .floating-quickbar {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .btn-floating-wa {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #25D366;
+      color: #FFF;
+      padding: 0.85rem 1.4rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5);
+      animation: bounceSlow 3s infinite;
+    }
+
+    @keyframes bounceSlow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .site-footer {
+      background: var(--cream-dark);
+      padding: 3.5rem 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .footer-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .footer-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .footer-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.82rem;
+    }
+
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 1024px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-content {
+        padding-right: 0;
+        max-width: 650px;
+        margin: 0 auto;
+      }
+      .hero-cta-group {
+        justify-content: center;
+      }
+      .hero-perks {
+        margin: 0 auto;
+      }
+      .hero-canvas-wrapper {
+        height: 480px;
+      }
+      .about-grid, .contact-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--nav-bg);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        flex-direction: column;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        gap: 1.2rem;
+      }
+      .nav-links.mobile-open {
+        display: flex;
+      }
+      .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .hero-canvas-wrapper {
+        height: 400px;
+      }
+      .menu-grid {
+        grid-template-columns: 1fr;
+      }
+      .about-floating-stat {
+        position: relative;
+        bottom: 0;
+        left: 0;
+        margin-top: 1rem;
+      }
+      .contact-action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+
+  <!-- ========================================================================
+       TOP NAVIGATION
+       ======================================================================== -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="#" class="brand-logo" aria-label="Fruitopia Home">
+        <span class="avocado-icon">🥑</span>
+        <span class="font-display">Fruitopia</span>
+      </a>
+
+      <div class="nav-badge">
+        <span>📍 Ashok Nagar, Chennai</span>
+      </div>
+
+      <ul class="nav-links">
+        <li><a href="#hero" class="nav-link active">Home</a></li>
+        <li><a href="#menu" class="nav-link">Menu</a></li>
+        <li><a href="#about" class="nav-link">About Us</a></li>
+        <li><a href="#location" class="nav-link">Location</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Light / Dark Mode Toggle -->
+        <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle Dark Mode" title="Toggle Light / Dark mode">
+          <span id="themeIcon">🌙</span>
+        </button>
+
+        <!-- Direct Call / Order -->
+        <a href="tel:+919342297441" class="btn-cta-nav">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          <span>Call to Order</span>
+        </a>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Toggle Menu" title="Open Navigation Menu">
+          <span>☰</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       HERO SECTION WITH 3D FOOD CART
+       ======================================================================== -->
+  <main>
+    <section id="hero" class="hero-section">
+      <div class="hero-container">
+        
+        <!-- Left Column: Copy & CTAs -->
+        <div class="hero-content">
+          <div class="hero-badge-pill">
+            <span class="pulse-dot"></span>
+            <span>Wholesome Street Food • Ashok Nagar, Chennai</span>
+          </div>
+
+          <h1 class="hero-title">
+            Fresh, wholesome <span class="highlight">bites and sips.</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            Chennai's favorite healthy street food kart. Creamy Hass avocado smoothies, warm artisanal guac toasts, comforting soups, and chilled herbal buttermilk.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="tel:+919342297441" class="btn-primary-hero">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span>Call to Order (+91 93422 97441)</span>
+            </a>
+
+            <a href="#menu" class="btn-secondary-hero">
+              <span>Explore Menu</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+          </div>
+
+          <div class="hero-perks">
+            <div class="perk-item">
+              <span class="perk-num">100%</span>
+              <span class="perk-label">Hass Avocado Packed Good Fats</span>
+            </div>
+            <div class="perk-item">
+              <span class="perk-num">Fresh</span>
+              <span class="perk-label">Wholesome Multi-grain Breads</span>
+            </div>
+            <div class="perk-item">
+              <span class="perk-num">₹76</span>
+              <span class="perk-label">Pocket-friendly Healthy Bites</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive 3D Cart Canvas -->
+        <div class="hero-canvas-wrapper">
+          <div id="webgl-canvas-container"></div>
+
+          <!-- Fallback Card for low-spec / non-WebGL devices -->
+          <div id="fallbackHero" class="fallback-hero-card">
+            <div style="font-size: 5rem; margin-bottom: 1rem;">🥑 🛺 🥪</div>
+            <h3 class="font-display" style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary);">Fruitopia Street Kart</h3>
+            <p style="color: var(--text-muted); max-width: 380px; margin-bottom: 1.5rem;">Wholesome avocado delicacies crafted fresh daily at Ashok Nagar, Chennai.</p>
+            <a href="#menu" class="btn-primary-hero">View Today's Menu</a>
+          </div>
+
+          <!-- 3D Scene Controls HUD -->
+          <div class="canvas-hud" id="canvasHud">
+            <span class="hud-icon">✨</span>
+            <span><strong>Drag</strong> to rotate • <strong>Scroll</strong> to zoom • <strong>Click</strong> items</span>
+            <button class="hud-reset-btn" id="resetCamBtn" title="Reset Camera View">Reset</button>
+          </div>
+
+          <!-- Clickable Hotspot Detailed Flyout -->
+          <div class="hotspot-modal" id="hotspotModal">
+            <button class="hotspot-modal-close" id="closeHotspotModal" aria-label="Close details">✕</button>
+            <span class="hotspot-tag" id="modalTag">Signature</span>
+            <h3 class="hotspot-title font-display" id="modalTitle">Avocado Smoothie</h3>
+            <div class="hotspot-price" id="modalPrice">₹195</div>
+            <p class="hotspot-desc" id="modalDesc">Our signature silky, creamy smoothie made from hass avocado packed with good fats.</p>
+            <a href="#" id="modalWaBtn" target="_blank" rel="noopener" class="hotspot-action-btn">
+              <span>Order via WhatsApp</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         MENU SECTION
+         ======================================================================== -->
+    <section id="menu" class="menu-section section-wrap">
+      <div class="section-header-block">
+        <span class="section-eyebrow">
+          <span>🥑 Handcrafted Healthy Bites</span>
+        </span>
+        <h2 class="section-heading">Nutritious, Delicious & Real</h2>
+        <p class="section-subtext">
+          Fresh ingredients, authentic Hass avocados, warm multigrain toasts, and cold-pressed elixirs. Made clean right before your eyes.
+        </p>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="menu-tabs">
+        <button class="menu-tab-btn active" data-filter="all">All Items</button>
+        <button class="menu-tab-btn" data-filter="smoothies">🥑 Smoothies</button>
+        <button class="menu-tab-btn" data-filter="toasts">🍞 Avocado Toasts</button>
+        <button class="menu-tab-btn" data-filter="soups">🥣 Soups</button>
+        <button class="menu-tab-btn" data-filter="drinks">🥤 Drinks & Sips</button>
+      </div>
+
+      <!-- Menu Grid Cards -->
+      <div class="menu-grid" id="menuGrid">
+
+        <!-- 1. Avocado Smoothie -->
+        <article class="menu-card" data-category="smoothies" data-hotspot-id="smoothie">
+          <div class="menu-card-top">
+            <div class="menu-badge-row">
+              <span class="card-category-tag">Smoothies</span>
+              <span class="nav-badge" style="font-size: 0.7rem;">⭐ Signature</span>
+            </div>
+            <div class="menu-card-title-price">
+              <h3 class="menu-item-name font-display">Avocado Smoothie</h3>
+              <span class="menu-item-price">₹195</span>
+            </div>
+            <p class="menu-item-desc">
+              Our signature silky, creamy smoothie made from hass avocado packed with good fats.
+            </p>
+          </div>
+          <div class="menu-card-bottom">
+            <button class="btn-focus-3d" onclick="focusItemOnKart('smoothie')">
+              <span>🔍 View on Kart</span>
+            </button>
+            <a href="https://wa.me/919342297441?text=Hi%20Fruitopia!%20I%20would%20like%20to%20order%20Avocado%20Smoothie%20(%E2%82%B9195)%20from%20your%20Ashok%20Nagar%20kart." target="_blank" rel="noopener" class="btn-order-wa-item">
+              <span>Order</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 2. Everyday Avocado Toast -->
+        <article class="menu-card" data-category="toasts" data-hotspot-id="toast">
+          <div class="menu-card-top">
+            <div class="menu-badge-row">
+              <span class="card-category-tag">Toast</span>
+              <span class="card-customizable-tag">✨ Customizable</span>
+            </div>
+            <div class="menu-card-title-price">
+              <h3 class="menu-item-name font-display">Everyday Avocado Toast</h3>
+              <span class="menu-item-price">₹129</span>
+            </div>
+            <p class="menu-item-desc">
+              Multigrain bread. Your go to toast topped with signature Haas guacamole, paneer/sweet corn, fresh herbs, lime & salt. Served with a salsa shot.
+            </p>
+          </div>
+          <div class="menu-card-bottom">
+            <button class="btn-focus-3d" onclick="focusItemOnKart('toast')">
+              <span>🔍 View on Kart</span>
+            </button>
+            <a href="https://wa.me/919342297441?text=Hi%20Fruitopia!%20I%20would%20like%20to%20order%20Everyday%20Avocado%20Toast%20(%E2%82%B9129)%20from%20your%20Ashok%20Nagar%20kart." target="_blank" rel="noopener" class="btn-order-wa-item">
+              <span>Order</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 3. Signature Avocado Toast -->
+        <article class="menu-card" data-category="toasts" data-hotspot-id="toast">
+          <div class="menu-card-top">
+            <div class="menu-badge-row">
+              <span class="card-category-tag">Toast</span>
+              <span class="card-customizable-tag">✨ High Protein • Customizable</span>
+            </div>
+            <div class="menu-card-title-price">
+              <h3 class="menu-item-name font-display">Signature Avocado Toast</h3>
+              <span class="menu-item-price">₹209</span>
+            </div>
+            <p class="menu-item-desc">
+              Multigrain bread. Our signature Hass avocado guacamole layered with our freshly made low fat cottage cheese packs a protein punch. Served with crispy nachos and a Salsa shot.
+            </p>
+          </div>
+          <div class="menu-card-bottom">
+            <button class="btn-focus-3d" onclick="focusItemOnKart('toast')">
+              <span>🔍 View on Kart</span>
+            </button>
+            <a href="https://wa.me/919342297441?text=Hi%20Fruitopia!%20I%20would%20like%20to%20order%20Signature%20Avocado%20Toast%20(%E2%82%B9209)%20from%20your%20Ashok%20Nagar%20kart." target="_blank" rel="noopener" class="btn-order-wa-item">
+              <span>Order</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 4. Double Guacamole Toast -->
+        <article class="menu-card" data-category="toasts" data-hotspot-id="toast">
+          <div class="menu-card-top">
+            <div class="menu-badge-row">
+              <span class="card-category-tag">Toast</span>
+              <span class="card-customizable-tag">✨ Double Haas • Customizable</span>
+            </div>
+            <div class="menu-card-title-price">
+              <h3 class="menu-item-name font-display">Double Guacamole Toast</h3>
+              <span class="menu-item-price">₹259</span>
+            </div>
+            <p class="menu-item-desc">
+              Multigrain bread. Our signature double hass avocado toast topped with paneer and served with crispy nachos and a salsa shot.
+            </p>
+          </div>
+          <div class="menu-card-bottom">
+            <button class="btn-focus-3d" onclick="focusItemOnKart('toast')">
+              <span>🔍 View on Kart</span>
+            </button>
+            <a href="https://wa.me/919342297441?text=Hi%20Fruitopia!%20I%20would%20like%20to%20order%20Double%20Guacamole%20Toast%20(%E2%82%B9259)%20from%20your%20Ashok%20Nagar%20kart." target="_blank" rel="noopener" class="btn-order-wa-item">
+              <span>Order</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 5. Broccoli Soup -->
+        <article class="menu-card" data-category="soups" data-hotspot-id="soup">
+          <div class="menu-card-top">
+            <div class="menu-badge-row">
+              <span class="card-category-tag">Soups</span>
+              <span class="nav-badge" style="font-size: 0.7rem;">🌿 Warm Comfort</span>
+            </div>
+            <div class="menu-card-title-price">
+              <h3 class="menu-item-name font-display">Broccoli Soup</h3>
+              <span class="menu-item-price">₹99</span>
+            </div>
+            <p class="menu-item-desc">
+              A wholesome blend of fresh broccoli florets, simmering gently with onions, garlic and a touch of cream for a velvety texture. This nourishing soup is rich in vitamins, antioxidants and natural fiber offering the perfect balance of comfort and health. Served warm, it is a light yet satisfying choice for any time of day.
+            </p>
+          </div>
+          <div class="menu-card-bottom">
+            <button class="btn-focus-3d" onclick="focusItemOnKart('soup')">
+              <span>🔍 View on Kart</span>
+            </button>
+            <a href="https://wa.me/919342297441?text=Hi%20Fruitopia!%20I%20would%20like%20to%20order%20Broccoli%20Soup%20(%E2%82%B999)%20from%20your%20Ashok%20Nagar%20kart." target="_blank" rel="noopener" class="btn-order-wa-item">
+              <span>Order</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 6. Green Buttermilk -->
+        <article class="menu-card" data-category="drinks" data-hotspot-id="buttermilk">
+          <div class="menu-card-top">
+            <div class="menu-badge-row">
+              <span class="card-category-tag">Drinks</span>
+              <span class="card-customizable-tag" style="color: var(--primary); background: var(--primary-subtle); border-color: var(--border);">✨ New in Town</span>
+            </div>
+            <div class="menu-card-title-price">
+              <h3 class="menu-item-name font-display">Green Buttermilk</h3>
+              <span class="menu-item-price">₹76</span>
+            </div>
+            <p class="menu-item-desc">
+              Welcome the new beverage in town. Meet our clean, creamy and cool buttermilk infused with Hass avocado, mint, curd and our mix of secret spices.
+            </p>
+          </div>
+          <div class="menu-card-bottom">
+            <button class="btn-focus-3d" onclick="focusItemOnKart('buttermilk')">
+              <span>🔍 View on Kart</span>
+            </button>
+            <a href="https://wa.me/919342297441?text=Hi%20Fruitopia!%20I%20would%20like%20to%20order%20Green%20Buttermilk%20(%E2%82%B976)%20from%20your%20Ashok%20Nagar%20kart." target="_blank" rel="noopener" class="btn-order-wa-item">
+              <span>Order</span>
+            </a>
+          </div>
+        </article>
+
+        <!-- 7. Kesar Badam Milk -->
+        <article class="menu-card" data-category="drinks" data-hotspot-id="buttermilk">
+          <div class="menu-card-top">
+            <div class="menu-badge-row">
+              <span class="card-category-tag">Drinks</span>
+              <span class="nav-badge" style="font-size: 0.7rem; color: var(--accent-gold);">👑 Royal Chilled</span>
+            </div>
+            <div class="menu-card-title-price">
+              <h3 class="menu-item-name font-display">Kesar Badam Milk</h3>
+              <span class="menu-item-price">₹129</span>
+            </div>
+            <p class="menu-item-desc">
+              A rich and refreshing blend of premium almonds, creamy milk, fragrant Saffron and aromatic cardamom. Smooth delicious and naturally comforting—served chilled for a loyal taste in every sip.
+            </p>
+          </div>
+          <div class="menu-card-bottom">
+            <button class="btn-focus-3d" onclick="focusItemOnKart('buttermilk')">
+              <span>🔍 View on Kart</span>
+            </button>
+            <a href="https://wa.me/919342297441?text=Hi%20Fruitopia!%20I%20would%20like%20to%20order%20Kesar%20Badam%20Milk%20(%E2%82%B9129)%20from%20your%20Ashok%20Nagar%20kart." target="_blank" rel="noopener" class="btn-order-wa-item">
+              <span>Order</span>
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         ABOUT US SECTION
+         ======================================================================== -->
+    <section id="about" class="about-section section-wrap">
+      <div class="about-grid">
+        
+        <!-- Left: Visual & Mission Card -->
+        <div class="about-visual">
+          <div class="about-card-mockup">
+            <span style="font-size: 2.2rem; display: block; margin-bottom: 1rem;">🌱🥑✨</span>
+            <blockquote class="about-quote">
+              "We started Fruitopia with a simple premise: street food can be utterly delicious, affordable, and deeply nourishing for your body."
+            </blockquote>
+            <div class="about-author">
+              <strong>Fruitopia Kitchen</strong> • Ashok Nagar, Chennai
+            </div>
+          </div>
+
+          <div class="about-floating-stat">
+            <div class="stat-num">100%</div>
+            <div class="stat-text">Grade-A Hass Avocados<br>Pure Good Fats Only</div>
+          </div>
+        </div>
+
+        <!-- Right: Story & Pillars -->
+        <div class="about-content">
+          <span class="section-eyebrow">About Fruitopia</span>
+          <h3 class="font-display">Chennai's First Avocado-Centered Street Food Kart</h3>
+          
+          <p>
+            Nestled in the bustling lanes of Ashok Nagar, Fruitopia is redefining quick street bites. We believe fast food doesn't have to mean refined oils, heavy sugars, or preservatives. 
+          </p>
+          <p>
+            From our velvety signature avocado smoothie to hearty multigrain guacamole toasts layered with fresh cottage cheese and warm simmering broccoli soup, every dish is prepared with clean ingredients, conscious hygiene, and uncompromising flavor.
+          </p>
+
+          <ul class="about-feature-list">
+            <li class="about-feature-item">
+              <span class="about-check">✓</span>
+              <span><strong>Guilt-Free Indulgence:</strong> Powered by heart-healthy monounsaturated fats from real Hass avocados.</span>
+            </li>
+            <li class="about-feature-item">
+              <span class="about-check">✓</span>
+              <span><strong>Pure & Wholesome:</strong> Multigrain artisan breads, house-crafted low-fat paneer, and fresh garden herbs.</span>
+            </li>
+            <li class="about-feature-item">
+              <span class="about-check">✓</span>
+              <span><strong>Pocket Friendly:</strong> Premium wellness café quality brought right onto the street at honest prices.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         LOCATION & CONTACT SECTION
+         ======================================================================== -->
+    <section id="location" class="contact-section section-wrap">
+      <div class="section-header-block">
+        <span class="section-eyebrow">Find Our Kart</span>
+        <h2 class="section-heading">Come Say Hello in Ashok Nagar</h2>
+        <p class="section-subtext">Drop by our street food kart for your morning boost or evening wholesome cravings, or place an order via phone & WhatsApp.</p>
+      </div>
+
+      <div class="contact-grid">
+        
+        <!-- Contact Card -->
+        <div class="contact-info-card">
+          <div>
+            <div class="contact-detail-group">
+              
+              <!-- Address -->
+              <div class="contact-row">
+                <div class="contact-icon-bubble">📍</div>
+                <div class="contact-text-meta">
+                  <h4>Address</h4>
+                  <p>
+                    55, 10th Avenue, 2nd Street, Ward 156,<br>
+                    Jaganathapuram, Ashok Nagar,<br>
+                    Chennai, Tamil Nadu - 600083
+                  </p>
+                </div>
+              </div>
+
+              <!-- Phone -->
+              <div class="contact-row">
+                <div class="contact-icon-bubble">📞</div>
+                <div class="contact-text-meta">
+                  <h4>Call to Order / Inquiries</h4>
+                  <a href="tel:+919342297441" class="phone-highlight">+91 93422 97441</a>
+                  <p style="font-size: 0.82rem; color: var(--text-muted); font-weight: normal; margin-top: 3px;">
+                    Fast local pick-up & delivery in and around Ashok Nagar
+                  </p>
+                </div>
+              </div>
+
+              <!-- Timings -->
+              <div class="contact-row">
+                <div class="contact-icon-bubble">⏰</div>
+                <div class="contact-text-meta">
+                  <h4>Kart Timings</h4>
+                  <p>Open Daily: 7:30 AM – 10:30 PM</p>
+                  <p style="font-size: 0.82rem; color: var(--text-muted); font-weight: normal;">Morning sips, post-workout bowls & evening warm bites</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Direct CTAs -->
+          <div class="contact-action-buttons">
+            <a href="tel:+919342297441" class="btn-call-direct">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span>Call Us Direct</span>
+            </a>
+
+            <a href="https://wa.me/919342297441?text=Hi%20Fruitopia!%20I%20would%20like%20to%20place%20an%20order%20for%20pickup/delivery%20in%20Ashok%20Nagar." target="_blank" rel="noopener" class="btn-wa-direct">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+              <span>WhatsApp Order</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Google Maps Embed -->
+        <div class="map-embed-wrapper">
+          <iframe 
+            title="Fruitopia Ashok Nagar Location Map"
+            src="https://maps.google.com/maps?q=55%2010th%20Avenue%20Ashok%20Nagar%20Chennai&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================
+       FLOATING QUICK ORDER BUTTON
+       ======================================================================== -->
+  <div class="floating-quickbar">
+    <a href="https://wa.me/919342297441?text=Hi%20Fruitopia!%20I%20would%20like%20to%20order%20from%20your%20Ashok%20Nagar%20kart." target="_blank" rel="noopener" class="btn-floating-wa" aria-label="Order on WhatsApp">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+      <span>Quick WhatsApp Order</span>
+    </a>
+  </div>
+
+  <!-- ========================================================================
+       SITE FOOTER
+       ======================================================================== -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div>
+          <a href="#" class="brand-logo" style="margin-bottom: 0.5rem;">
+            <span class="avocado-icon">🥑</span>
+            <span class="font-display">Fruitopia</span>
+          </a>
+          <p style="font-size: 0.85rem; max-width: 320px;">
+            Fresh, wholesome street food kart in Ashok Nagar, Chennai. Good fats, genuine ingredients.
+          </p>
+        </div>
+
+        <div>
+          <p style="font-weight: 600; color: var(--text-main); margin-bottom: 0.4rem;">Visit the Kart</p>
+          <p style="font-size: 0.85rem;">55, 10th Avenue, 2nd Street, Ashok Nagar, Chennai</p>
+          <p style="font-size: 0.85rem;">Phone: +91 93422 97441</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© <span id="yearSpan">2026</span> Fruitopia Street Food Kart. Handcrafted with love & avocados.</div>
+        <div style="display: flex; gap: 1rem;">
+          <a href="#hero">Back to top ↑</a>
+          <a href="#menu">View Menu</a>
+          <a href="#location">Find Us</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================
+       JAVASCRIPT: THREE.JS 3D SCENE & INTERACTIVITY
+       ======================================================================== -->
+  <script>
+    /* =======================================================================
+       1. THEME SWITCHER (Light / Dark Mode)
+       ======================================================================= */
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const body = document.body;
+
+    function applyTheme(theme) {
+      body.setAttribute('data-theme', theme);
+      themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('fruitopia_theme', theme);
+      if (window.updateSceneThemeColors) {
+        window.updateSceneThemeColors(theme);
+      }
+    }
+
+    const savedTheme = localStorage.getItem('fruitopia_theme') || 
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(savedTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      const current = body.getAttribute('data-theme');
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // Mobile Navigation Drawer Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navLinksList = document.querySelector('.nav-links');
+    if (mobileMenuBtn && navLinksList) {
+      mobileMenuBtn.addEventListener('click', () => {
+        navLinksList.classList.toggle('mobile-open');
+        mobileMenuBtn.textContent = navLinksList.classList.contains('mobile-open') ? '✕' : '☰';
+      });
+
+      // Close mobile menu when a link is clicked
+      navLinksList.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          navLinksList.classList.remove('mobile-open');
+          mobileMenuBtn.textContent = '☰';
+        });
+      });
+    }
+
+    document.getElementById('yearSpan').textContent = new Date().getFullYear();
+
+    /* =======================================================================
+       2. MENU FILTER TABS
+       ======================================================================= */
+    const tabButtons = document.querySelectorAll('.menu-tab-btn');
+    const menuCards = document.querySelectorAll('.menu-card');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.getAttribute('data-filter');
+
+        menuCards.forEach(card => {
+          if (filter === 'all' || card.getAttribute('data-category') === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    /* =======================================================================
+       3. THREE.JS 3D HERO FOOD KART
+       =======================================================================
+       SWAPPING IN YOUR OWN .GLB MODEL:
+       To replace the built-in procedural cart with your own 3D .glb file:
+       1. Set USE_EXTERNAL_GLB = true below.
+       2. Provide the relative path to your file, e.g.:
+          GLB_MODEL_PATH = 'assets/fruitopia_cart.glb';
+       3. In your 3D modeling tool (Blender), name your meshes or empty objects:
+          'SmoothieJar', 'AvocadoToast', 'BroccoliSoup', 'GreenButtermilk'.
+          The raycasting and camera zoom will automatically attach to them!
+       ======================================================================= */
+    const USE_EXTERNAL_GLB = false; // <-- Change to true when you have your .glb file!
+    const GLB_MODEL_PATH = 'fruitopia_cart.glb';
+
+    // Hotspot catalog data matching the prompt items
+    const HOTSPOTS_DATA = {
+      smoothie: {
+        tag: 'Signature Drink',
+        title: 'Avocado Smoothie',
+        price: '₹195',
+        desc: 'Our signature silky, creamy smoothie made from hass avocado packed with good fats.',
+        waText: 'Hi Fruitopia! I want to order your Avocado Smoothie (₹195).',
+        position: new THREE.Vector3(0.55, 1.45, 0.45)
+      },
+      toast: {
+        tag: 'Artisan Guac',
+        title: 'Signature & Everyday Avocado Toast',
+        price: 'From ₹129',
+        desc: 'Multigrain bread topped with signature Hass guacamole, cottage cheese or sweet corn, fresh herbs & salsa shot.',
+        waText: 'Hi Fruitopia! I want to order Avocado Toast from your Ashok Nagar kart.',
+        position: new THREE.Vector3(-0.45, 1.42, 0.48)
+      },
+      soup: {
+        tag: 'Warm Comfort',
+        title: 'Broccoli Soup',
+        price: '₹99',
+        desc: 'A wholesome blend of fresh broccoli florets, onions, garlic & a touch of cream. Nourishing and velvety.',
+        waText: 'Hi Fruitopia! I want to order Broccoli Soup (₹99).',
+        position: new THREE.Vector3(-0.95, 1.45, 0.1)
+      },
+      buttermilk: {
+        tag: 'New In Town',
+        title: 'Green Buttermilk',
+        price: '₹76',
+        desc: 'Creamy, cool buttermilk infused with Hass avocado, fresh mint, curd & our secret spice blend.',
+        waText: 'Hi Fruitopia! I want to order Green Buttermilk (₹76).',
+        position: new THREE.Vector3(0.95, 1.42, 0.15)
+      }
+    };
+
+    // WebGL capability check
+    function isWebGLAvailable() {
+      try {
+        const canvas = document.createElement('canvas');
+        return !!(window.WebGLRenderingContext && 
+          (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+      } catch (e) {
+        return false;
+      }
+    }
+
+    if (!isWebGLAvailable()) {
+      document.getElementById('webgl-canvas-container').style.display = 'none';
+      document.getElementById('canvasHud').style.display = 'none';
+      document.getElementById('fallbackHero').classList.add('show');
+    } else {
+      initThreeScene();
+    }
+
+    let scene, camera, renderer, controls;
+    let cartGroup;
+    let interactiveHotspots = [];
+    let particleSystem;
+    let isUserInteracting = false;
+    let idleTimer = null;
+    const defaultCameraPos = { x: 3.8, y: 3.2, z: 5.2 };
+    const defaultLookAt = { x: 0, y: 1.3, z: 0 };
+
+    function initThreeScene() {
+      const container = document.getElementById('webgl-canvas-container');
+      const width = container.clientWidth || 600;
+      const height = container.clientHeight || 550;
+
+      // 1. Scene
+      scene = new THREE.Scene();
+      
+      // Gradient background top/bottom fog
+      const isDark = body.getAttribute('data-theme') === 'dark';
+      scene.fog = new THREE.FogExp2(isDark ? 0x11170f : 0xf4eedf, 0.04);
+
+      // 2. Camera
+      camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+      camera.position.set(defaultCameraPos.x, defaultCameraPos.y, defaultCameraPos.z);
+
+      // 3. Renderer with antialiasing & shadow map
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.1;
+      container.appendChild(renderer.domElement);
+
+      // 4. OrbitControls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.target.set(defaultLookAt.x, defaultLookAt.y, defaultLookAt.z);
+      controls.minDistance = 3.5;
+      controls.maxDistance = 11.0;
+      controls.maxPolarAngle = Math.PI / 2.05; // Prevent camera sinking under floor
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.9;
+
+      // Interaction listeners to pause / resume auto-rotate
+      const onUserActive = () => {
+        isUserInteracting = true;
+        controls.autoRotate = false;
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+          isUserInteracting = false;
+          controls.autoRotate = true;
+        }, 3500);
+      };
+
+      renderer.domElement.addEventListener('pointerdown', onUserActive);
+      renderer.domElement.addEventListener('wheel', onUserActive, { passive: true });
+
+      // 5. Lighting Setup
+      setupLighting();
+
+      // 6. Build or Load Food Kart Model
+      if (USE_EXTERNAL_GLB) {
+        loadExternalGLB(GLB_MODEL_PATH);
+      } else {
+        cartGroup = buildCuteProceduralCart();
+        scene.add(cartGroup);
+      }
+
+      // 7. Floating Particle System (Avocado slices & leaves)
+      particleSystem = createAvocadoParticles();
+      scene.add(particleSystem);
+
+      // 8. Ground Soft Shadow Contact Disc
+      createContactShadow();
+
+      // 9. Raycasting Setup for Hotspots
+      setupRaycasting(container);
+
+      // 10. Animation Loop
+      let clock = new THREE.Clock();
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        const elapsedTime = clock.getElapsedTime();
+
+        controls.update();
+
+        // Gentle floating wobble for hanging lights & particle drift
+        if (particleSystem) {
+          const positions = particleSystem.geometry.attributes.position.array;
+          for (let i = 0; i < positions.length; i += 3) {
+            positions[i + 1] += Math.sin(elapsedTime * 1.5 + positions[i]) * 0.003;
+            positions[i] += Math.cos(elapsedTime * 0.8 + positions[i + 1]) * 0.002;
+          }
+          particleSystem.geometry.attributes.position.needsUpdate = true;
+          particleSystem.rotation.y = elapsedTime * 0.03;
+        }
+
+        // Pulse Hotspot markers
+        interactiveHotspots.forEach(item => {
+          if (item.ringMesh) {
+            const scale = 1 + Math.sin(elapsedTime * 4 + item.pulseOffset) * 0.15;
+            item.ringMesh.scale.set(scale, scale, scale);
+          }
+        });
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Window resize handling
+      window.addEventListener('resize', () => {
+        const newW = container.clientWidth;
+        const newH = container.clientHeight;
+        camera.aspect = newW / newH;
+        camera.updateProjectionMatrix();
+        renderer.setSize(newW, newH);
+      });
+
+      // Reset camera button
+      document.getElementById('resetCamBtn').addEventListener('click', resetCameraView);
+    }
+
+    /* -----------------------------------------------------------------------
+       LIGHTING
+       ----------------------------------------------------------------------- */
+    let hemiLight, dirLight, warmPointLight;
+
+    function setupLighting() {
+      // Hemisphere Light (sky cream, ground grass)
+      hemiLight = new THREE.HemisphereLight(0xfff7ea, 0x8aa868, 0.85);
+      hemiLight.position.set(0, 20, 0);
+      scene.add(hemiLight);
+
+      // Main Sun Key Light with soft shadows
+      dirLight = new THREE.DirectionalLight(0xfffaed, 1.2);
+      dirLight.position.set(6, 12, 7);
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = 1024;
+      dirLight.shadow.mapSize.height = 1024;
+      dirLight.shadow.camera.near = 0.5;
+      dirLight.shadow.camera.far = 30;
+      dirLight.shadow.camera.left = -5;
+      dirLight.shadow.camera.right = 5;
+      dirLight.shadow.camera.top = 5;
+      dirLight.shadow.camera.bottom = -5;
+      dirLight.shadow.bias = -0.001;
+      scene.add(dirLight);
+
+      // Soft Fill Light
+      const fillLight = new THREE.DirectionalLight(0xdff0c7, 0.5);
+      fillLight.position.set(-6, 6, -5);
+      scene.add(fillLight);
+
+      // Warm Cozy Glow on the counter
+      warmPointLight = new THREE.PointLight(0xffb84d, 1.0, 6);
+      warmPointLight.position.set(0, 2.3, 0.4);
+      scene.add(warmPointLight);
+    }
+
+    // Dynamic theme adjustment for Three.js
+    window.updateSceneThemeColors = function(theme) {
+      if (!scene) return;
+      const isDark = theme === 'dark';
+      if (scene.fog) {
+        scene.fog.color.setHex(isDark ? 0x11170f : 0xf4eedf);
+      }
+      if (hemiLight) {
+        hemiLight.color.setHex(isDark ? 0xaad682 : 0xfff7ea);
+        hemiLight.groundColor.setHex(isDark ? 0x0f180d : 0x8aa868);
+        hemiLight.intensity = isDark ? 0.65 : 0.85;
+      }
+      if (dirLight) {
+        dirLight.intensity = isDark ? 1.0 : 1.2;
+      }
+    };
+
+    /* -----------------------------------------------------------------------
+       BUILD PROCEDURAL CUTE 3D FOOD KART
+       ----------------------------------------------------------------------- */
+    function buildCuteProceduralCart() {
+      const cart = new THREE.Group();
+
+      // Palette Materials
+      const avocadoGreenMat = new THREE.MeshStandardMaterial({
+        color: 0x4f7828,
+        roughness: 0.45,
+        metalness: 0.1
+      });
+
+      const avocadoLightMat = new THREE.MeshStandardMaterial({
+        color: 0x7da847,
+        roughness: 0.5
+      });
+
+      const creamMat = new THREE.MeshStandardMaterial({
+        color: 0xfff9ea,
+        roughness: 0.6
+      });
+
+      const warmWoodMat = new THREE.MeshStandardMaterial({
+        color: 0x8d5c38,
+        roughness: 0.7,
+        metalness: 0.05
+      });
+
+      const metalChromeMat = new THREE.MeshStandardMaterial({
+        color: 0x333333,
+        roughness: 0.25,
+        metalness: 0.85
+      });
+
+      const brassMat = new THREE.MeshStandardMaterial({
+        color: 0xd9a842,
+        roughness: 0.35,
+        metalness: 0.7
+      });
+
+      // A. CART MAIN CABINET BODY
+      const cabinetGeo = new THREE.BoxGeometry(2.4, 1.15, 1.4);
+      const cabinet = new THREE.Mesh(cabinetGeo, avocadoGreenMat);
+      cabinet.position.y = 0.95;
+      cabinet.castShadow = true;
+      cabinet.receiveShadow = true;
+      cart.add(cabinet);
+
+      // Decorative front panels (Cream inlay)
+      const panelGeo = new THREE.BoxGeometry(0.95, 0.8, 0.04);
+      const panelL = new THREE.Mesh(panelGeo, creamMat);
+      panelL.position.set(-0.55, 0.95, 0.71);
+      const panelR = new THREE.Mesh(panelGeo, creamMat);
+      panelR.position.set(0.55, 0.95, 0.71);
+      cart.add(panelL, panelR);
+
+      // B. SOLID WOOD COUNTERTOP
+      const counterGeo = new THREE.BoxGeometry(2.7, 0.12, 1.65);
+      const counter = new THREE.Mesh(counterGeo, warmWoodMat);
+      counter.position.y = 1.55;
+      counter.castShadow = true;
+      counter.receiveShadow = true;
+      cart.add(counter);
+
+      // C. TWO BICYCLE-STYLE WHEELS
+      const tireGeo = new THREE.TorusGeometry(0.55, 0.065, 16, 40);
+      const rimGeo = new THREE.TorusGeometry(0.5, 0.02, 12, 32);
+      const hubGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.2, 16);
+      hubGeo.rotateZ(Math.PI / 2);
+
+      [-0.85, 0.85].forEach(xPos => {
+        const wheelGroup = new THREE.Group();
+        wheelGroup.position.set(xPos, 0.55, 0.8);
+
+        const tire = new THREE.Mesh(tireGeo, metalChromeMat);
+        tire.castShadow = true;
+        const rim = new THREE.Mesh(rimGeo, brassMat);
+        const hub = new THREE.Mesh(hubGeo, brassMat);
+        wheelGroup.add(tire, rim, hub);
+
+        // Radial Spokes
+        for (let i = 0; i < 8; i++) {
+          const spokeGeo = new THREE.CylinderGeometry(0.007, 0.007, 0.95);
+          const spoke = new THREE.Mesh(spokeGeo, metalChromeMat);
+          spoke.rotation.z = (i * Math.PI) / 8;
+          wheelGroup.add(spoke);
+        }
+
+        cart.add(wheelGroup);
+      });
+
+      // Front & Rear Support Legs & Axel
+      const axleGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.9);
+      axleGeo.rotateZ(Math.PI / 2);
+      const axle = new THREE.Mesh(axleGeo, metalChromeMat);
+      axle.position.set(0, 0.55, 0.8);
+      cart.add(axle);
+
+      const standLegL = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.65), metalChromeMat);
+      standLegL.position.set(-0.95, 0.32, -0.6);
+      const standLegR = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.65), metalChromeMat);
+      standLegR.position.set(0.95, 0.32, -0.6);
+      cart.add(standLegL, standLegR);
+
+      // Push handle bar at the back
+      const handleGroup = new THREE.Group();
+      handleGroup.position.set(-1.4, 1.45, 0);
+      const hBar = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.2), warmWoodMat);
+      hBar.rotation.x = Math.PI / 2;
+      const hStem1 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.35), metalChromeMat);
+      hStem1.rotation.z = Math.PI / 3;
+      hStem1.position.set(0.12, -0.1, 0.45);
+      const hStem2 = hStem1.clone();
+      hStem2.position.set(0.12, -0.1, -0.45);
+      handleGroup.add(hBar, hStem1, hStem2);
+      cart.add(handleGroup);
+
+      // D. CANOPY POSTS & STRIPED AWNING
+      // 4 Metal Corner Support Poles
+      const poleGeo = new THREE.CylinderGeometry(0.025, 0.025, 1.5, 12);
+      [
+        [-1.25, 0.72], [1.25, 0.72],
+        [-1.25, -0.72], [1.25, -0.72]
+      ].forEach(([x, z]) => {
+        const pole = new THREE.Mesh(poleGeo, brassMat);
+        pole.position.set(x, 2.3, z);
+        pole.castShadow = true;
+        cart.add(pole);
+      });
+
+      // Striped Awning (Avocado Green & Cream Alternating Waves)
+      const awningGroup = new THREE.Group();
+      awningGroup.position.set(0, 3.05, 0);
+
+      // Create procedural canvas texture with avocado green and cream stripes
+      const stripeCanvas = document.createElement('canvas');
+      stripeCanvas.width = 512;
+      stripeCanvas.height = 512;
+      const ctx = stripeCanvas.getContext('2d');
+      const stripeCount = 10;
+      const stripeW = stripeCanvas.width / stripeCount;
+      for (let i = 0; i < stripeCount; i++) {
+        ctx.fillStyle = i % 2 === 0 ? '#4F7828' : '#FFF9EA';
+        ctx.fillRect(i * stripeW, 0, stripeW, stripeCanvas.height);
+      }
+      const stripeTexture = new THREE.CanvasTexture(stripeCanvas);
+      stripeTexture.wrapS = THREE.RepeatWrapping;
+      stripeTexture.wrapT = THREE.RepeatWrapping;
+
+      const awningMat = new THREE.MeshStandardMaterial({
+        map: stripeTexture,
+        roughness: 0.6,
+        side: THREE.DoubleSide
+      });
+
+      // Main curved canopy roof
+      const roofGeo = new THREE.BoxGeometry(2.8, 0.14, 1.8);
+      const roof = new THREE.Mesh(roofGeo, awningMat);
+      roof.castShadow = true;
+      awningGroup.add(roof);
+
+      // Front & Side Scalloped Valance Flaps
+      const valanceGeo = new THREE.BoxGeometry(2.82, 0.28, 0.04);
+      const valanceFront = new THREE.Mesh(valanceGeo, awningMat);
+      valanceFront.position.set(0, -0.16, 0.9);
+      const valanceBack = valanceFront.clone();
+      valanceBack.position.set(0, -0.16, -0.9);
+      awningGroup.add(valanceFront, valanceBack);
+
+      cart.add(awningGroup);
+
+      // E. CHALKBOARD MENU SIGN ("Fruitopia")
+      const boardCanvas = document.createElement('canvas');
+      boardCanvas.width = 512;
+      boardCanvas.height = 160;
+      const bCtx = boardCanvas.getContext('2d');
+      // Dark slate background
+      bCtx.fillStyle = '#1c2419';
+      bCtx.fillRect(0, 0, boardCanvas.width, boardCanvas.height);
+      // Cute chalkboard frame & text
+      bCtx.strokeStyle = '#8d5c38';
+      bCtx.lineWidth = 10;
+      bCtx.strokeRect(5, 5, boardCanvas.width - 10, boardCanvas.height - 10);
+      
+      bCtx.fillStyle = '#FAF6ED';
+      bCtx.font = 'bold 44px Georgia, serif';
+      bCtx.textAlign = 'center';
+      bCtx.fillText('🥑 Fruitopia 🥑', 256, 68);
+
+      bCtx.fillStyle = '#86B84A';
+      bCtx.font = '22px sans-serif';
+      bCtx.fillText('Fresh & Wholesome • Ashok Nagar', 256, 115);
+
+      const boardTexture = new THREE.CanvasTexture(boardCanvas);
+      const boardMat = new THREE.MeshStandardMaterial({ map: boardTexture, roughness: 0.5 });
+      const signBoard = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.55, 0.05), boardMat);
+      signBoard.position.set(0, 2.7, 0.72);
+      signBoard.castShadow = true;
+      cart.add(signBoard);
+
+      // F. COZY HANGING STRING LIGHTS
+      const stringBulbsGroup = new THREE.Group();
+      stringBulbsGroup.position.set(0, 2.85, 0.8);
+      const bulbGeo = new THREE.SphereGeometry(0.045, 12, 12);
+      const bulbMat = new THREE.MeshStandardMaterial({
+        color: 0xffe28a,
+        emissive: 0xffba3b,
+        emissiveIntensity: 0.9,
+        roughness: 0.2
+      });
+
+      for (let i = -4; i <= 4; i++) {
+        const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+        const x = i * 0.28;
+        const droop = Math.cos((i / 4) * (Math.PI / 2)) * 0.08;
+        bulb.position.set(x, -droop, 0);
+        stringBulbsGroup.add(bulb);
+      }
+      cart.add(stringBulbsGroup);
+
+      // G. COUNTERTOP ITEMS & INTERACTIVE HOTSPOTS
+
+      // 1. AVOCADO SMOOTHIE JAR (Hotspot 1)
+      const smoothieGroup = new THREE.Group();
+      smoothieGroup.position.copy(HOTSPOTS_DATA.smoothie.position);
+
+      const jarGlassGeo = new THREE.CylinderGeometry(0.12, 0.1, 0.35, 16);
+      const glassMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transmission: 0.88,
+        opacity: 1,
+        transparent: true,
+        roughness: 0.1,
+        ior: 1.5
+      });
+      const jar = new THREE.Mesh(jarGlassGeo, glassMat);
+      
+      const smoothieLiquidGeo = new THREE.CylinderGeometry(0.11, 0.09, 0.28, 16);
+      const smoothieMat = new THREE.MeshStandardMaterial({ color: 0x82b249, roughness: 0.4 });
+      const smoothieLiquid = new THREE.Mesh(smoothieLiquidGeo, smoothieMat);
+      smoothieLiquid.position.y = -0.02;
+
+      // Straw
+      const strawGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.45, 8);
+      const strawMat = new THREE.MeshStandardMaterial({ color: 0xfff9ea });
+      const straw = new THREE.Mesh(strawGeo, strawMat);
+      straw.position.set(0.04, 0.14, 0);
+      straw.rotation.z = -0.25;
+
+      smoothieGroup.add(jar, smoothieLiquid, straw);
+      attachHotspotMarker(smoothieGroup, 'smoothie');
+      cart.add(smoothieGroup);
+
+      // 2. AVOCADO TOAST ON MINI WOODEN BOARD (Hotspot 2)
+      const toastGroup = new THREE.Group();
+      toastGroup.position.copy(HOTSPOTS_DATA.toast.position);
+
+      const miniBoard = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.03, 0.35), warmWoodMat);
+      const breadGeo = new THREE.BoxGeometry(0.24, 0.05, 0.22);
+      const breadMat = new THREE.MeshStandardMaterial({ color: 0xa87747, roughness: 0.9 });
+      const bread = new THREE.Mesh(breadGeo, breadMat);
+      bread.position.y = 0.04;
+
+      // Rich Haas Guacamole topping
+      const guacGeo = new THREE.BoxGeometry(0.22, 0.03, 0.2);
+      const guacMat = new THREE.MeshStandardMaterial({ color: 0x6e9c35, roughness: 0.8 });
+      const guac = new THREE.Mesh(guacGeo, guacMat);
+      guac.position.y = 0.075;
+
+      // Salsa Shot Glass
+      const shotGeo = new THREE.CylinderGeometry(0.04, 0.03, 0.1, 12);
+      const salsaMat = new THREE.MeshStandardMaterial({ color: 0xd94826, roughness: 0.4 });
+      const shot = new THREE.Mesh(shotGeo, salsaMat);
+      shot.position.set(0.14, 0.06, 0.08);
+
+      toastGroup.add(miniBoard, bread, guac, shot);
+      attachHotspotMarker(toastGroup, 'toast');
+      cart.add(toastGroup);
+
+      // 3. BROCCOLI SOUP POT (Hotspot 3)
+      const soupGroup = new THREE.Group();
+      soupGroup.position.copy(HOTSPOTS_DATA.soup.position);
+
+      const potGeo = new THREE.CylinderGeometry(0.18, 0.14, 0.26, 20);
+      const potMat = new THREE.MeshStandardMaterial({ color: 0xd26848, roughness: 0.3, metalness: 0.2 });
+      const pot = new THREE.Mesh(potGeo, potMat);
+
+      // Green simmering soup surface
+      const soupSurfGeo = new THREE.CylinderGeometry(0.17, 0.17, 0.02, 20);
+      const soupSurfMat = new THREE.MeshStandardMaterial({ color: 0x4f7828, roughness: 0.3 });
+      const soupSurf = new THREE.Mesh(soupSurfGeo, soupSurfMat);
+      soupSurf.position.y = 0.1;
+
+      // Cute wooden ladle handle sticking out
+      const ladle = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.3), warmWoodMat);
+      ladle.position.set(0.06, 0.16, 0.06);
+      ladle.rotation.z = 0.4;
+
+      soupGroup.add(pot, soupSurf, ladle);
+      attachHotspotMarker(soupGroup, 'soup');
+      cart.add(soupGroup);
+
+      // 4. GREEN BUTTERMILK KULHAD / BOTTLE (Hotspot 4)
+      const buttermilkGroup = new THREE.Group();
+      buttermilkGroup.position.copy(HOTSPOTS_DATA.buttermilk.position);
+
+      const bottleGeo = new THREE.CylinderGeometry(0.07, 0.09, 0.34, 16);
+      const milkMat = new THREE.MeshStandardMaterial({ color: 0xdfecc5, roughness: 0.3 });
+      const bottle = new THREE.Mesh(bottleGeo, milkMat);
+
+      // Mint leaf garnish on top
+      const mintLeafGeo = new THREE.SphereGeometry(0.03, 8, 8);
+      mintLeafGeo.scale(1, 0.2, 1.8);
+      const leafMat = new THREE.MeshStandardMaterial({ color: 0x2e6b18 });
+      const mint = new THREE.Mesh(mintLeafGeo, leafMat);
+      mint.position.set(0, 0.18, 0);
+
+      buttermilkGroup.add(bottle, mint);
+      attachHotspotMarker(buttermilkGroup, 'buttermilk');
+      cart.add(buttermilkGroup);
+
+      // 5. APOTHECARY GLASS JAR WITH WHOLE AVOCADOS
+      const avoJarGroup = new THREE.Group();
+      avoJarGroup.position.set(0, 1.72, -0.3);
+      const largeJar = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.22, 0.45, 18), glassMat);
+      avoJarGroup.add(largeJar);
+
+      // 3 Whole Mini Avocados inside
+      const avoGeo = new THREE.SphereGeometry(0.07, 10, 10);
+      avoGeo.scale(1, 1.35, 1);
+      const skinMat = new THREE.MeshStandardMaterial({ color: 0x2a3e14, roughness: 0.9 });
+      for (let a = 0; a < 3; a++) {
+        const miniAvo = new THREE.Mesh(avoGeo, skinMat);
+        miniAvo.position.set((a - 1) * 0.11, -0.08 + (a % 2) * 0.06, 0);
+        miniAvo.rotation.z = (a - 1) * 0.3;
+        avoJarGroup.add(miniAvo);
+      }
+      cart.add(avoJarGroup);
+
+      return cart;
+    }
+
+    /* -----------------------------------------------------------------------
+       HOTSPOT MARKER ATTACHMENT
+       ----------------------------------------------------------------------- */
+    function attachHotspotMarker(parentGroup, hotspotId) {
+      const markerGroup = new THREE.Group();
+      markerGroup.position.set(0, 0.28, 0);
+
+      // Glowing pulsing inner bead
+      const beadGeo = new THREE.SphereGeometry(0.045, 12, 12);
+      const beadMat = new THREE.MeshBasicMaterial({ color: 0x34d399 });
+      const bead = new THREE.Mesh(beadGeo, beadMat);
+
+      // Pulsing outer halo ring
+      const ringGeo = new THREE.RingGeometry(0.06, 0.09, 24);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0x7da847,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.8
+      });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = Math.PI / 2;
+
+      markerGroup.add(bead, ring);
+      parentGroup.add(markerGroup);
+
+      // Register for raycaster
+      bead.userData = { isHotspot: true, id: hotspotId, parentGroup: parentGroup };
+      parentGroup.userData = { isHotspot: true, id: hotspotId, parentGroup: parentGroup };
+
+      interactiveHotspots.push({
+        id: hotspotId,
+        group: parentGroup,
+        ringMesh: ring,
+        pulseOffset: Math.random() * Math.PI
+      });
+    }
+
+    /* -----------------------------------------------------------------------
+       FLOATING AVOCADO & LEAF PARTICLES
+       ----------------------------------------------------------------------- */
+    function createAvocadoParticles() {
+      const particleCount = 45;
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(particleCount * 3);
+      const colors = new Float32Array(particleCount * 3);
+
+      const colorPalette = [
+        new THREE.Color(0x7da847),
+        new THREE.Color(0x9cd15b),
+        new THREE.Color(0x4f7828),
+        new THREE.Color(0xdbe8ba)
+      ];
+
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 8;
+        positions[i * 3 + 1] = 0.5 + Math.random() * 4.5;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+
+        const c = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+        colors[i * 3] = c.r;
+        colors[i * 3 + 1] = c.g;
+        colors[i * 3 + 2] = c.b;
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      // Circular particle texture
+      const pCanvas = document.createElement('canvas');
+      pCanvas.width = 64;
+      pCanvas.height = 64;
+      const pCtx = pCanvas.getContext('2d');
+      pCtx.beginPath();
+      pCtx.arc(32, 32, 28, 0, Math.PI * 2);
+      pCtx.fillStyle = '#ffffff';
+      pCtx.fill();
+      const pTexture = new THREE.CanvasTexture(pCanvas);
+
+      const material = new THREE.PointsMaterial({
+        size: 0.16,
+        map: pTexture,
+        transparent: true,
+        opacity: 0.75,
+        vertexColors: true,
+        depthWrite: false
+      });
+
+      return new THREE.Points(geometry, material);
+    }
+
+    /* -----------------------------------------------------------------------
+       CONTACT SHADOW UNDER CART
+       ----------------------------------------------------------------------- */
+    function createContactShadow() {
+      const shadowCanvas = document.createElement('canvas');
+      shadowCanvas.width = 256;
+      shadowCanvas.height = 256;
+      const sCtx = shadowCanvas.getContext('2d');
+      const grad = sCtx.createRadialGradient(128, 128, 10, 128, 128, 120);
+      grad.addColorStop(0, 'rgba(20, 30, 10, 0.45)');
+      grad.addColorStop(0.6, 'rgba(20, 30, 10, 0.15)');
+      grad.addColorStop(1, 'rgba(20, 30, 10, 0)');
+      sCtx.fillStyle = grad;
+      sCtx.fillRect(0, 0, 256, 256);
+
+      const shadowGeo = new THREE.PlaneGeometry(3.6, 2.8);
+      const shadowMat = new THREE.MeshBasicMaterial({
+        map: new THREE.CanvasTexture(shadowCanvas),
+        transparent: true,
+        depthWrite: false
+      });
+      const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
+      shadowPlane.rotation.x = -Math.PI / 2;
+      shadowPlane.position.y = 0.01;
+      scene.add(shadowPlane);
+    }
+
+    /* -----------------------------------------------------------------------
+       RAYCASTING & INTERACTIVE CAMERA ZOOM
+       ----------------------------------------------------------------------- */
+    function setupRaycasting(container) {
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      function getPointerCoords(e) {
+        const rect = container.getBoundingClientRect();
+        return {
+          x: ((e.clientX - rect.left) / rect.width) * 2 - 1,
+          y: -((e.clientY - rect.top) / rect.height) * 2 + 1
+        };
+      }
+
+      container.addEventListener('pointermove', (e) => {
+        const coords = getPointerCoords(e);
+        mouse.x = coords.x;
+        mouse.y = coords.y;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(scene.children, true);
+        const hit = intersects.find(obj => obj.object.userData && obj.object.userData.isHotspot);
+
+        if (hit) {
+          container.style.cursor = 'pointer';
+        } else {
+          container.style.cursor = 'grab';
+        }
+      });
+
+      container.addEventListener('click', (e) => {
+        const coords = getPointerCoords(e);
+        mouse.x = coords.x;
+        mouse.y = coords.y;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(scene.children, true);
+        const hit = intersects.find(obj => obj.object.userData && obj.object.userData.isHotspot);
+
+        if (hit) {
+          const hotspotId = hit.object.userData.id;
+          openHotspotModal(hotspotId);
+          zoomToHotspot(hotspotId);
+        }
+      });
+    }
+
+    function zoomToHotspot(id) {
+      const itemData = HOTSPOTS_DATA[id];
+      if (!itemData) return;
+
+      controls.autoRotate = false;
+
+      // Animate Camera and Target using GSAP
+      gsap.to(camera.position, {
+        x: itemData.position.x + 1.2,
+        y: itemData.position.y + 0.6,
+        z: itemData.position.z + 1.6,
+        duration: 1.2,
+        ease: 'power2.out'
+      });
+
+      gsap.to(controls.target, {
+        x: itemData.position.x,
+        y: itemData.position.y,
+        z: itemData.position.z,
+        duration: 1.2,
+        ease: 'power2.out'
+      });
+    }
+
+    function resetCameraView() {
+      gsap.to(camera.position, {
+        x: defaultCameraPos.x,
+        y: defaultCameraPos.y,
+        z: defaultCameraPos.z,
+        duration: 1.0,
+        ease: 'power2.out'
+      });
+      gsap.to(controls.target, {
+        x: defaultLookAt.x,
+        y: defaultLookAt.y,
+        z: defaultLookAt.z,
+        duration: 1.0,
+        ease: 'power2.out',
+        onComplete: () => {
+          controls.autoRotate = true;
+        }
+      });
+      closeHotspotModal();
+    }
+
+    // Modal Flyout Handlers
+    const modal = document.getElementById('hotspotModal');
+    const modalClose = document.getElementById('closeHotspotModal');
+
+    function openHotspotModal(id) {
+      const data = HOTSPOTS_DATA[id];
+      if (!data) return;
+
+      document.getElementById('modalTag').textContent = data.tag;
+      document.getElementById('modalTitle').textContent = data.title;
+      document.getElementById('modalPrice').textContent = data.price;
+      document.getElementById('modalDesc').textContent = data.desc;
+      document.getElementById('modalWaBtn').href = `https://wa.me/919342297441?text=${encodeURIComponent(data.waText)}`;
+
+      modal.classList.add('active');
+    }
+
+    function closeHotspotModal() {
+      modal.classList.remove('active');
+    }
+    modalClose.addEventListener('click', closeHotspotModal);
+
+    // Global focus item trigger from menu cards
+    window.focusItemOnKart = function(hotspotId) {
+      // Scroll smoothly to hero section first
+      document.getElementById('hero').scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        zoomToHotspot(hotspotId);
+        openHotspotModal(hotspotId);
+      }, 400);
+    };
+
+    /* -----------------------------------------------------------------------
+       EXTERNAL .GLB LOADER (READY FOR YOUR OWN MODEL)
+       ----------------------------------------------------------------------- */
+    function loadExternalGLB(modelPath) {
+      const loader = new THREE.GLTFLoader();
+      loader.load(
+        modelPath,
+        (gltf) => {
+          const model = gltf.scene;
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+
+              // Hook up hotspots based on mesh names in Blender
+              if (child.name.includes('Smoothie')) {
+                attachHotspotMarker(child, 'smoothie');
+              } else if (child.name.includes('Toast')) {
+                attachHotspotMarker(child, 'toast');
+              } else if (child.name.includes('Soup')) {
+                attachHotspotMarker(child, 'soup');
+              } else if (child.name.includes('Buttermilk')) {
+                attachHotspotMarker(child, 'buttermilk');
+              }
+            }
+          });
+          scene.add(model);
+        },
+        undefined,
+        (err) => {
+          console.warn('Could not load .glb file, falling back to procedural kart.', err);
+          cartGroup = buildCuteProceduralCart();
+          scene.add(cartGroup);
+        }
+      );
+    }
+  </script>
+</body>
+</html>
