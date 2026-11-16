@@ -2,92 +2,136 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary: #4b7326;
-  --primary-hover: #3d5e1e;
-  --primary-light: #7da847;
-  --primary-subtle: rgba(75, 115, 38, 0.12);
+/* 
+  FRUITOPIA CLASSIC DESIGN TOKENS
+  Adhering to the 60-30-10 Color Rule:
+  - 60% Dominant: Warm Artisan Cream / Linen Canvas
+  - 30% Supporting/Neutral: Deep Botanical Forest & Subtle Organic Borders
+  - 10% Vibrant Accent: Energizing CTA & Highlight Accents
+*/
 
+:root {
+  /* 30% Supporting: Rich Botanical Forest Green */
+  --primary: #2d5218;
+  --primary-hover: #223d12;
+  --primary-light: #4b7326;
+  --primary-subtle: rgba(45, 82, 24, 0.08);
+
+  /* 60% Dominant: Warm Artisan Cream & Canvas */
+  --bg-page: #FAF6ED;
   --cream: #FAF6ED;
   --cream-dark: #F2ECE0;
   --cream-card: #FFFFFF;
+  --nav-bg: rgba(250, 246, 237, 0.92);
 
+  /* 10% Vibrant High-Contrast Accents */
+  --accent-cta: #2d5218;
+  --accent-cta-hover: #1f3a10;
   --accent-salsa: #D94826;
-  --accent-gold: #E6A817;
-  --wood: #8D5B36;
+  --accent-gold: #C68D0E;
+  --wood: #7A4E2D;
 
-  --text-main: #1D2615;
-  --text-muted: #57634E;
+  /* Typography Colors (High Contrast WCAG AAA compliant) */
+  --text-main: #14200E;
+  --text-muted: #4B5A42;
   --text-inverted: #FAF6ED;
 
-  --border: rgba(75, 115, 38, 0.18);
-  --border-subtle: rgba(0, 0, 0, 0.08);
+  /* Classic Soft Borders (No harsh black borders) */
+  --border: rgba(45, 82, 24, 0.12);
+  --border-subtle: rgba(0, 0, 0, 0.06);
 
-  --bg-gradient: radial-gradient(circle at 65% 35%, #FFFDF7 0%, #F5EEDC 60%, #E9E1C8 100%);
-  --bg-page: #FAF6ED;
-  --nav-bg: rgba(250, 246, 237, 0.88);
+  --bg-gradient: radial-gradient(circle at 70% 30%, #FFFDF9 0%, #F7F1E3 60%, #EFE7D2 100%);
 }
 
 [data-theme="dark"] {
   --primary: #86B84A;
   --primary-hover: #9CD15B;
   --primary-light: #AEE36F;
-  --primary-subtle: rgba(134, 184, 74, 0.15);
+  --primary-subtle: rgba(134, 184, 74, 0.14);
 
-  --cream: #121810;
-  --cream-dark: #0D120B;
-  --cream-card: #182215;
+  --bg-page: #0E140C;
+  --cream: #0E140C;
+  --cream-dark: #080D07;
+  --cream-card: #151E13;
+  --nav-bg: rgba(14, 20, 12, 0.94);
+
+  --accent-cta: #689E2D;
+  --accent-cta-hover: #7CB838;
+  --accent-salsa: #E05634;
+  --accent-gold: #E6A817;
 
   --text-main: #F3F7EC;
-  --text-muted: #9EAF94;
-  --text-inverted: #121810;
+  --text-muted: #9BB090;
+  --text-inverted: #0E140C;
 
-  --border: rgba(134, 184, 74, 0.22);
+  --border: rgba(134, 184, 74, 0.18);
   --border-subtle: rgba(255, 255, 255, 0.08);
 
-  --bg-gradient: radial-gradient(circle at 65% 35%, #182216 0%, #11170F 65%, #0B0F0A 100%);
-  --bg-page: #10160E;
-  --nav-bg: rgba(16, 22, 14, 0.9);
+  --bg-gradient: radial-gradient(circle at 70% 30%, #162014 0%, #0F160D 65%, #080C07 100%);
 }
 
 html {
   scroll-behavior: smooth;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 body {
   background-color: var(--bg-page);
   color: var(--text-main);
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
   overflow-x: hidden;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  line-height: 1.65;
 }
 
-/* Custom Scrollbar */
+/* Accessible Global Focus States */
+:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
+}
+
+/* Classic Smooth Transition Utility */
+.transition-classic {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom Artisan Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 7px;
 }
 ::-webkit-scrollbar-track {
   background: var(--cream-dark);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--primary-light);
+  background: rgba(45, 82, 24, 0.28);
   border-radius: 9999px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(45, 82, 24, 0.45);
+}
 
+/* Floating Animations */
 @keyframes floatAvo {
   0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-4px) rotate(4deg); }
+  50% { transform: translateY(-4px) rotate(3deg); }
 }
 
 .animate-float-avo {
-  animation: floatAvo 3s ease-in-out infinite;
+  animation: floatAvo 3.2s ease-in-out infinite;
 }
 
 @keyframes pulseGlow {
-  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
-  70% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(45, 82, 24, 0.5); }
+  70% { box-shadow: 0 0 0 7px rgba(45, 82, 24, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(45, 82, 24, 0); }
 }
 
 .pulse-glow {
-  animation: pulseGlow 2s infinite;
+  animation: pulseGlow 2.4s infinite;
+}
+
+/* Microscopic/Artisan subtle glow */
+.classic-backdrop {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
